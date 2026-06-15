@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/SovetkanB/payflow/user-service/internal/config"
+	"github.com/SovetkanB/payflow/user-service/internal/handler"
 	"github.com/joho/godotenv"
 )
 
@@ -19,9 +20,14 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
+	h := handler.NewHandler()
+
+	router := handler.NewRouter(h)
+
 	log.Println("User Service starting on port", cfg.HTTPPort)
-	err = http.ListenAndServe(fmt.Sprintf(":%s", cfg.HTTPPort), nil)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", cfg.HTTPPort), router)
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
+
 }
