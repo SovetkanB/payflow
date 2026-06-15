@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/SovetkanB/payflow/user-service/internal/config"
+	"github.com/SovetkanB/payflow/user-service/internal/db"
 	"github.com/SovetkanB/payflow/user-service/internal/handler"
 	"github.com/joho/godotenv"
 )
@@ -19,6 +20,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
+
+	db, err := db.Connect(cfg.DSN())
+	if err != nil {
+		log.Fatalf("Failed to connect to DB: %v", err)
+	}
+	defer db.Close()
+
+	log.Println("Connected to DB")
 
 	h := handler.NewHandler()
 
