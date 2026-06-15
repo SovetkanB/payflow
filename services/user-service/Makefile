@@ -1,0 +1,3 @@
+run:    # go run ./cmd/main.go
+build:  # go build -o bin/user-service ./cmd/main.go
+test:   # go test ./...
