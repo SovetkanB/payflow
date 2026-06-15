@@ -23,7 +23,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		"message": "not implemented",
 	}
 
-	writeJSON(w, http.StatusFound, data)
+	writeJSON(w, http.StatusCreated, data)
 }
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {

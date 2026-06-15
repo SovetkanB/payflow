@@ -21,8 +21,8 @@ func NewRouter(h *Handler) http.Handler {
 	r.Get("/health", h.Health)
 
 	r.Route("/api/v1", func(r chi.Router) {
-		r.Get("/user/{id}", h.GetUser)
-		r.Post("/user", h.CreateUser)
+		r.Get("/users/{id}", h.GetUser)
+		r.Post("/users", h.CreateUser)
 	})
 
 	return r
