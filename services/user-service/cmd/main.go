@@ -8,6 +8,8 @@ import (
 	"github.com/SovetkanB/payflow/user-service/internal/config"
 	"github.com/SovetkanB/payflow/user-service/internal/db"
 	"github.com/SovetkanB/payflow/user-service/internal/handler"
+	"github.com/SovetkanB/payflow/user-service/internal/repository"
+	"github.com/SovetkanB/payflow/user-service/internal/service"
 	"github.com/joho/godotenv"
 )
 
@@ -29,7 +31,9 @@ func main() {
 
 	log.Println("Connected to DB")
 
-	h := handler.NewHandler()
+	r := repository.NewRepository(db)
+	s := service.NewService(r)
+	h := handler.NewHandler(s)
 
 	router := handler.NewRouter(h)
 

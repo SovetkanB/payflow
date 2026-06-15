@@ -8,7 +8,7 @@ import (
 )
 
 type Repository interface {
-	CreateUser(ctx context.Context, user *model.User) (*model.User, error)
+	CreateUser(ctx context.Context, user *model.User) error
 	GetUserByID(ctx context.Context, id string) (*model.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
 }
@@ -23,7 +23,7 @@ func NewRepository(db *sqlx.DB) Repository {
 	}
 }
 
-func (pr *postgresRepo) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
+func (pr *postgresRepo) CreateUser(ctx context.Context, user *model.User) error {
 	err := pr.db.QueryRow(
 		`INSERT INTO users (email, username, password)
 		 VALUES ($1, $2, $3)
@@ -32,10 +32,10 @@ func (pr *postgresRepo) CreateUser(ctx context.Context, user *model.User) (*mode
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return user, nil
+	return nil
 }
 
 func (pr *postgresRepo) GetUserByID(ctx context.Context, id string) (*model.User, error) {
