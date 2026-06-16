@@ -66,7 +66,7 @@ func (s *Service) Login(ctx context.Context, req model.LoginRequest) (*model.Log
 		return nil, model.ErrInvalidPassword
 	}
 
-	token, err := auth.GenerateToken(user.ID, user.Email, s.cfg.JWTSecret, s.cfg.JWTExpiretion)
+	token, err := auth.GenerateToken(user.ID, user.Email, s.cfg.JWTSecret, s.cfg.JWTExpiration)
 	if err != nil {
 		return nil, err
 	}

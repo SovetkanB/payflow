@@ -35,7 +35,7 @@ func main() {
 	s := service.NewService(r, cfg)
 	h := handler.NewHandler(s)
 
-	router := handler.NewRouter(h)
+	router := handler.NewRouter(h, cfg)
 
 	log.Println("User Service starting on port", cfg.HTTPPort)
 	err = http.ListenAndServe(fmt.Sprintf(":%s", cfg.HTTPPort), router)

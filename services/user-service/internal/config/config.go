@@ -15,7 +15,7 @@ type Config struct {
 	DBName        string
 	DBSSLMode     string
 	JWTSecret     string
-	JWTExpiretion time.Duration
+	JWTExpiration time.Duration
 }
 
 func (c *Config) DSN() string {
@@ -26,7 +26,7 @@ func (c *Config) DSN() string {
 }
 
 func Load() (*Config, error) {
-	jwtExpiretion, err := time.ParseDuration(getEnv("JWT_EXPIRETION", "15m"))
+	jwtExpiration, err := time.ParseDuration(getEnv("JWT_EXPIRATION", "15m"))
 	if err != nil {
 		return nil, fmt.Errorf("invalid JWT_ACCESS_TTL: %w", err)
 	}
@@ -39,7 +39,7 @@ func Load() (*Config, error) {
 		DBName:        getEnv("DB_NAME", "userdb"),
 		DBSSLMode:     getEnv("DB_SSL_MODE", "disable"),
 		JWTSecret:     getEnv("JWT_SECRET", "changeinprod"),
-		JWTExpiretion: jwtExpiretion,
+		JWTExpiration: jwtExpiration,
 	}, nil
 }
 
