@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	ErrNotFound = errors.New("record not found")
+	ErrNotFound        = errors.New("record not found")
+	ErrInvalidPassword = errors.New("email or password is not correct")
 )
 
 type User struct {
@@ -38,4 +39,14 @@ func (u *User) ToUserResponse() *UserResponse {
 		Username:  u.Username,
 		CreatedAt: u.CreatedAt,
 	}
+}
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Token string        `json:"token"`
+	User  *UserResponse `json:"user"`
 }

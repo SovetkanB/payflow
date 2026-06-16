@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/SovetkanB/payflow/user-service/internal/model"
 	"github.com/jmoiron/sqlx"
@@ -50,12 +52,36 @@ func (pr *postgresRepo) GetUserByID(ctx context.Context, id string) (*model.User
 	)
 
 	if err != nil {
-		return nil, err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, model.ErrNotFound
+		default:
+			return nil, err
+		}
 	}
 
 	return &user, nil
 }
 
 func (pr *postgresRepo) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-	return nil, nil
+	var user model.User
+
+	err := pr.db.Get(
+		&user,
+		`SELECT id, email, username, password, created_at, updated_at
+		FROM users
+		WHERE email = $1`,
+		email,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, model.ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
 }

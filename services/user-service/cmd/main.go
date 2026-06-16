@@ -32,7 +32,7 @@ func main() {
 	log.Println("Connected to DB")
 
 	r := repository.NewRepository(db)
-	s := service.NewService(r)
+	s := service.NewService(r, cfg)
 	h := handler.NewHandler(s)
 
 	router := handler.NewRouter(h)

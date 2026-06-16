@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 
+	"github.com/SovetkanB/payflow/user-service/internal/auth"
+	"github.com/SovetkanB/payflow/user-service/internal/config"
 	"github.com/SovetkanB/payflow/user-service/internal/model"
 	"github.com/SovetkanB/payflow/user-service/internal/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -12,10 +13,11 @@ import (
 
 type Service struct {
 	repo repository.Repository
+	cfg  *config.Config
 }
 
-func NewService(repo repository.Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo repository.Repository, cfg *config.Config) *Service {
+	return &Service{repo: repo, cfg: cfg}
 }
 
 func (s *Service) CreateUser(ctx context.Context, req model.CreateUserRequest) (*model.UserResponse, error) {
@@ -48,13 +50,29 @@ func (s *Service) GetUser(ctx context.Context, id string) (*model.UserResponse, 
 
 	user, err := s.repo.GetUserByID(ctx, id)
 	if err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			return nil, model.ErrNotFound
-		default:
-			return nil, err
-		}
+		return nil, err
 	}
 
 	return user.ToUserResponse(), nil
+}
+
+func (s *Service) Login(ctx context.Context, req model.LoginRequest) (*model.LoginResponse, error) {
+	user, err := s.repo.GetUserByEmail(ctx, req.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil || !(bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)) == nil) {
+		return nil, model.ErrInvalidPassword
+	}
+
+	token, err := auth.GenerateToken(user.ID, user.Email, s.cfg.JWTSecret, s.cfg.JWTExpiretion)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.LoginResponse{
+		Token: token,
+		User:  user.ToUserResponse(),
+	}, nil
 }
