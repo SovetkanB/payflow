@@ -10,13 +10,12 @@ import (
 	"github.com/SovetkanB/payflow/user-service/internal/handler"
 	"github.com/SovetkanB/payflow/user-service/internal/repository"
 	"github.com/SovetkanB/payflow/user-service/internal/service"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("No .env file found, using env variables: %v", err)
-	}
+	// if err := godotenv.Load(); err != nil {
+	// 	log.Fatalf("No .env file found, using env variables: %v", err)
+	// }
 
 	cfg, err := config.Load()
 	if err != nil {
