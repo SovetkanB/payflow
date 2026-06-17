@@ -12,10 +12,11 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /app/user-service ./cmd/main.go
 
 FROM alpine:3.19
 
-COPY --from=builder /app/user-service .
+COPY --from=builder /app/user-service /app/user-service
+COPY migrations /app/migrations
 
 EXPOSE 8080
 
-CMD ["./user-service"]
+CMD ["/app/user-service"]
 
 

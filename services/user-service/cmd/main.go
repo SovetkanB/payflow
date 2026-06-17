@@ -22,15 +22,19 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	db, err := db.Connect(cfg.DSN())
+	database, err := db.Connect(cfg.DSN())
 	if err != nil {
 		log.Fatalf("Failed to connect to DB: %v", err)
 	}
-	defer db.Close()
-
+	defer database.Close()
 	log.Println("Connected to DB")
 
-	r := repository.NewRepository(db)
+	if err := db.RunMigrate(cfg.MigrationDSN(), cfg.MigrationsPath); err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
+	log.Println("Migrations applied successfully")
+
+	r := repository.NewRepository(database)
 	s := service.NewService(r, cfg)
 	h := handler.NewHandler(s)
 

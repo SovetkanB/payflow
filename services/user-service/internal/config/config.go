@@ -7,15 +7,16 @@ import (
 )
 
 type Config struct {
-	HTTPPort      string
-	DBHost        string
-	DBPort        string
-	DBUser        string
-	DBPass        string
-	DBName        string
-	DBSSLMode     string
-	JWTSecret     string
-	JWTExpiration time.Duration
+	HTTPPort       string
+	DBHost         string
+	DBPort         string
+	DBUser         string
+	DBPass         string
+	DBName         string
+	DBSSLMode      string
+	JWTSecret      string
+	JWTExpiration  time.Duration
+	MigrationsPath string
 }
 
 func (c *Config) DSN() string {
@@ -25,21 +26,29 @@ func (c *Config) DSN() string {
 	)
 }
 
+func (c *Config) MigrationDSN() string {
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		c.DBUser, c.DBPass, c.DBHost, c.DBPort, c.DBName, c.DBSSLMode,
+	)
+}
+
 func Load() (*Config, error) {
 	jwtExpiration, err := time.ParseDuration(getEnv("JWT_EXPIRATION", "15m"))
 	if err != nil {
 		return nil, fmt.Errorf("invalid JWT_ACCESS_TTL: %w", err)
 	}
 	return &Config{
-		HTTPPort:      getEnv("APP_PORT", "8080"),
-		DBHost:        getEnv("DB_HOST", "localhost"),
-		DBPort:        getEnv("DB_PORT", "5432"),
-		DBUser:        getEnv("DB_USER", "postgres"),
-		DBPass:        getEnv("DB_PASS", "postgres"),
-		DBName:        getEnv("DB_NAME", "userdb"),
-		DBSSLMode:     getEnv("DB_SSL_MODE", "disable"),
-		JWTSecret:     getEnv("JWT_SECRET", "changeinprod"),
-		JWTExpiration: jwtExpiration,
+		HTTPPort:       getEnv("APP_PORT", "8080"),
+		DBHost:         getEnv("DB_HOST", "localhost"),
+		DBPort:         getEnv("DB_PORT", "5432"),
+		DBUser:         getEnv("DB_USER", "postgres"),
+		DBPass:         getEnv("DB_PASS", "postgres"),
+		DBName:         getEnv("DB_NAME", "userdb"),
+		DBSSLMode:      getEnv("DB_SSL_MODE", "disable"),
+		JWTSecret:      getEnv("JWT_SECRET", "changeinprod"),
+		JWTExpiration:  jwtExpiration,
+		MigrationsPath: getEnv("MIGRATIONS_PATH", "file://migrations"),
 	}, nil
 }
 

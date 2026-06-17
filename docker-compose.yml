@@ -15,7 +15,7 @@ services:
       timeout: 5s
       retries: 5
   
-  user-servise:
+  user-service:
     build: ./services/user-service
     ports:
       - "8080:8080"
@@ -29,6 +29,7 @@ services:
       DB_SSL_MODE: disable
       JWT_SECRET: changeme-in-production
       JWT_EXPIRATION_HOURS: 24
+      MIGRATIONS_PATH: file:///app/migrations
     depends_on:
       postgres:
         condition: service_healthy
