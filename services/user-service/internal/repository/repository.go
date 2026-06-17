@@ -13,6 +13,9 @@ type Repository interface {
 	CreateUser(ctx context.Context, user *model.User) error
 	GetUserByID(ctx context.Context, id string) (*model.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
+	CreateRefreshToken(ctx context.Context, token *model.RefreshToken) error
+	GetRefreshToken(ctx context.Context, token string) (*model.RefreshToken, error)
+	DeleteRefreshToken(ctx context.Context, token string) error
 }
 
 type postgresRepo struct {
@@ -84,4 +87,63 @@ func (pr *postgresRepo) GetUserByEmail(ctx context.Context, email string) (*mode
 	}
 
 	return &user, nil
+}
+
+func (pr *postgresRepo) CreateRefreshToken(ctx context.Context, token *model.RefreshToken) error {
+	err := pr.db.QueryRow(
+		`INSERT INTO refresh_tokens (user_id, token, expires_at)
+		VALUES ($1, $2, $3)
+		RETURNING id, created_at`,
+		token.UserID, token.Token, token.ExpiresAt,
+	).Scan(&token.ID, &token.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pr *postgresRepo) GetRefreshToken(ctx context.Context, token string) (*model.RefreshToken, error) {
+	var rt model.RefreshToken
+
+	err := pr.db.Get(
+		&rt,
+		`SELECT id, user_id, token, expires_at, created_at
+		FROM refresh_tokens
+		WHERE token = $1`,
+		token,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, model.ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &rt, nil
+}
+
+func (pr *postgresRepo) DeleteRefreshToken(ctx context.Context, token string) error {
+	result, err := pr.db.ExecContext(
+		ctx,
+		`DELETE FROM refresh_tokens WHERE token = $1`,
+		token,
+	)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return model.ErrNotFound
+	}
+
+	return nil
 }

@@ -2,7 +2,10 @@ package service
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
+	"time"
 
 	"github.com/SovetkanB/payflow/user-service/internal/auth"
 	"github.com/SovetkanB/payflow/user-service/internal/config"
@@ -66,13 +69,31 @@ func (s *Service) Login(ctx context.Context, req model.LoginRequest) (*model.Log
 		return nil, model.ErrInvalidPassword
 	}
 
-	token, err := auth.GenerateToken(user.ID, user.Email, s.cfg.JWTSecret, s.cfg.JWTExpiration)
+	token, err := auth.GenerateToken(user.ID, user.Email, s.cfg.JWTSecret, s.cfg.AccessExpiration)
 	if err != nil {
 		return nil, err
 	}
 
+	refreshToken := generateRefreshToken()
+	rtRecord := model.RefreshToken{
+		UserID:    user.ID,
+		Token:     refreshToken,
+		ExpiresAt: time.Now().Add(s.cfg.RefreshExpiration),
+	}
+
+	if err := s.repo.CreateRefreshToken(ctx, &rtRecord); err != nil {
+		return nil, err
+	}
+
 	return &model.LoginResponse{
-		Token: token,
-		User:  user.ToUserResponse(),
+		AccessToken:  token,
+		RefreshToken: refreshToken,
+		User:         user.ToUserResponse(),
 	}, nil
+}
+
+func generateRefreshToken() string {
+	b := make([]byte, 32)
+	rand.Read(b)
+	return hex.EncodeToString(b)
 }

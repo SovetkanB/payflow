@@ -47,6 +47,19 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token string        `json:"token"`
-	User  *UserResponse `json:"user"`
+	AccessToken  string        `json:"access_token"`
+	RefreshToken string        `json:"refresh_token"`
+	User         *UserResponse `json:"user"`
+}
+
+type RefreshToken struct {
+	ID        string    `db:"id"`
+	UserID    string    `db:"user_id"`
+	Token     string    `db:"token"`
+	ExpiresAt time.Time `db:"expires_at"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+type RefreshRequest struct {
+	RefreshToken string `json:"refresh_token"`
 }

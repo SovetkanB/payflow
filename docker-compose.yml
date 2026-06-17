@@ -28,7 +28,8 @@ services:
       DB_NAME: userdb
       DB_SSL_MODE: disable
       JWT_SECRET: changeme-in-production
-      JWT_EXPIRATION_HOURS: 24
+      JWT_ACCESS_TTL: 15m
+      JWT_REFRESH_TTL: 720h
       MIGRATIONS_PATH: file:///app/migrations
     depends_on:
       postgres:
